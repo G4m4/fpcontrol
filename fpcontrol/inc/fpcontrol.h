@@ -128,8 +128,8 @@ int FPCfegetexceptflag(FPCexcept_t* flagp) {
 int FPCfesetexceptflag(const FPCexcept_t* flagp, int excepts) {
 #if(_SYSTEM_WIN)
   return _controlfp(excepts, _MCW_EM);
-  fesetexceptflag(flagp, excepts));
 #elif(_SYSTEM_LINUX)
+  return fesetexceptflag(flagp, excepts & FE_ALL_EXCEPT);
 #endif  // _SYSTEM_ ?
 }
 
