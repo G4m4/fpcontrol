@@ -54,7 +54,8 @@ TEST(FPControl, ExceptionsFlags) {
   // All pending exceptions have to be cleared, just in case
   FPCfeclearexcept();
 
-  FPCfesetexceptflag(&initial_flags, FPC_INEXACT);
+  new_flags = ~initial_flags;
+  FPCfesetexceptflag(&new_flags, new_flags);
   FPCfegetexceptflag(&new_flags);
   ASSERT_NE(initial_flags, new_flags);
 
