@@ -30,6 +30,8 @@ extern "C" {
   #define _SYSTEM_LINUX 1
 #elif(defined(_WIN32) || defined(_WIN64))
   #define _SYSTEM_WIN 1
+#elif(defined(__APPLE__))
+  #define _SYSTEM_APPLE 1
 #else
   #error "System could not be detected"
 #endif
@@ -42,7 +44,11 @@ extern "C" {
   #include <math.h>
   // required for SSE denormals management
   #include <xmmintrin.h>
+#elif(_SYSTEM_APPLE)
+  #include <fenv.h>
   #pragma STDC FENV_ACCESS ON
+  // required for fpclassify()
+  #include <math.h>
 #endif  // _SYSTEM_ ?
 
 #if (_SYSTEM_WIN)
@@ -51,14 +57,15 @@ extern "C" {
 #pragma warning(disable : 4996)
 #endif  // (_SYSTEM_WIN)
 
-// Wrap compiler-specific definitions into common one.
-// Gcc (and Clang) will rely on C99 standard fenv.h stuff,
-// where msvc will be using its own specific functions.
+// Wrap system-specific definitions into common one.
+// Apple will rely on C99 standard fenv.h stuff + one specific macro,
+// Linux on C99 standard fenv.h stuff + SSE xmmintrin stuff,
+// where Windows will be using its own specific functions.
 
-// Mostly we are sticking with C99 stuff here
-/// Note that, where most C99 functions allow a per-exception flag access,
-/// MSVC does not for clearing/reading flags.
-/// Hence this wrapper does not provide per-exception flag clearing/reading.
+// We mostly try to stick with C99 standard whenever possible
+// Note that, where most C99 functions allow a per-exception flag access,
+// MSVC does not for clearing/reading flags.
+// Hence this wrapper does not provide per-exception flag clearing/reading.
 
 /// @brief Floating points exception constants
 #if(_SYSTEM_WIN)
@@ -166,6 +173,7 @@ int FPCfesetround(int round) {
   const unsigned int kDenormalsFTZ = 0x8000;
   /// @brief Bitmask for denormals DAZ (SSE control word)
   const unsigned int kDenormalsDAZ = 0x0040;
+#elif(_SYSTEM_APPLE)
   typedef fenv_t FPCenv_t;
 #endif  // _SYSTEM_ ?
 
@@ -174,9 +182,10 @@ static FPCenv_t FPCprevious_env;
 
 /// @brief Flush all denormals to zero
 ///
-/// On Msvc this will be done for both x87 and SSE; SSE only for gcc/Clang
+/// On Windows this will be done for both x87 and SSE,
+/// SSE only for Apple and Linux
 ///
-/// On gcc/Clang this can only be done by setting the whole FP environment
+/// On Apple this can only be done by setting the whole FP environment
 /// to default! That's why this environment has to be saved first.
 ///
 /// For the same reason, do all other changes AFTER calling this function.
@@ -191,7 +200,10 @@ void FPCSetDenormalsFTZ(void) {
   FPCprevious_env = _mm_getcsr();
   // Activate FTZ
   _mm_setcsr(_mm_getcsr() | (kDenormalsFTZ | kDenormalsDAZ));
+#elif(_SYSTEM_APPLE)
   // Save previous environment
+  fgetenv(&FPCprevious_env);
+  // Set FP environment to default and activate FTZ
   fesetenv(FE_DFL_DISABLE_SSE_DENORMS_ENV);
 #endif  // _SYSTEM_ ?
 }
@@ -206,6 +218,8 @@ void FPCResetDenormals(void) {
   _controlfp(FPCprevious_env, _MCW_DN);
 #elif(_SYSTEM_LINUX)
   _mm_setcsr(FPCprevious_env);
+#elif(_SYSTEM_APPLE)
+  fesetenv(FPCprevious_env);
 #endif  // _SYSTEM_ ?
 }
 
