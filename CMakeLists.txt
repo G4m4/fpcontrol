@@ -144,6 +144,13 @@ function(set_target_mt _TARGET_NAME)
   endif(${COMPILER_IS_MSVC})
 endfunction(set_target_mt)
 
+# Activating SSE on gcc/Clang, forcing the use of SSE instructions
+# This is required since for now we only change SSE control word on Linux
+if(${COMPILER_IS_GCC} OR ${COMPILER_IS_CLANG})
+  add_definitions("-msse")
+  add_definitions("-mfpmath=sse")
+endif(${COMPILER_IS_GCC} OR ${COMPILER_IS_CLANG})
+
 # Project-wide warning options
 if(${COMPILER_IS_GCC} OR ${COMPILER_IS_CLANG})
   add_definitions(-pedantic)
