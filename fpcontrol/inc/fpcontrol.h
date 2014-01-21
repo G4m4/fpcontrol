@@ -161,6 +161,11 @@ int FPCfesetround(int round) {
 #if(_SYSTEM_WIN)
   typedef unsigned int FPCenv_t;
 #elif(_SYSTEM_LINUX)
+  typedef unsigned int FPCenv_t;
+  /// @brief Bitmask for denormals FTZ (SSE control word)
+  const unsigned int kDenormalsFTZ = 0x8000;
+  /// @brief Bitmask for denormals DAZ (SSE control word)
+  const unsigned int kDenormalsDAZ = 0x0040;
   typedef fenv_t FPCenv_t;
 #endif  // _SYSTEM_ ?
 
@@ -182,9 +187,11 @@ void FPCSetDenormalsFTZ(void) {
   // Activate FTZ
   _controlfp_s(0, _DN_FLUSH, _MCW_DN);
 #elif(_SYSTEM_LINUX)
+  // Save previous value
+  FPCprevious_env = _mm_getcsr();
+  // Activate FTZ
+  _mm_setcsr(_mm_getcsr() | (kDenormalsFTZ | kDenormalsDAZ));
   // Save previous environment
-  fegetenv(&FPCprevious_env);
-  // Set FP environment to default and activate FTZ and DAZ
   fesetenv(FE_DFL_DISABLE_SSE_DENORMS_ENV);
 #endif  // _SYSTEM_ ?
 }
@@ -197,8 +204,8 @@ void FPCSetDenormalsFTZ(void) {
 void FPCResetDenormals(void) {
 #if(_SYSTEM_WIN)
   _controlfp(FPCprevious_env, _MCW_DN);
-  fesetenv(&FPCprevious_env);
 #elif(_SYSTEM_LINUX)
+  _mm_setcsr(FPCprevious_env);
 #endif  // _SYSTEM_ ?
 }
 
