@@ -42,7 +42,7 @@ union Number32b {
 /// @brief Check the IsDenormal function on all denormals:
 /// e.g. those in ] 0.0f ; FLT_MIN [
 /// Also check it on the first non-denormal (FLT_MIN)
-TEST(FPControl, IsDenormal) {
+TEST(Denormals, IsDenormal) {
   Number32b checked_num(1);
   while (checked_num.f < std::numeric_limits<float>::min()) {
     EXPECT_TRUE(FPCIsDenormal(checked_num.f));
@@ -51,27 +51,8 @@ TEST(FPControl, IsDenormal) {
   EXPECT_FALSE(FPCIsDenormal(checked_num.f));
 }
 
-/// @brief Set/Get exceptions flags
-TEST(FPControl, ExceptionsFlags) {
-  FPCexcept_t initial_flags;
-  FPCexcept_t new_flags;
-  FPCfegetexceptflag(&initial_flags);
-
-  // All pending exceptions have to be cleared, just in case
-  FPCfeclearexcept();
-
-  new_flags = ~initial_flags;
-  FPCfesetexceptflag(&new_flags, new_flags);
-  FPCfegetexceptflag(&new_flags);
-  ASSERT_NE(initial_flags, new_flags);
-
-  FPCfesetexceptflag(&initial_flags, FPC_ALL_EXCEPT);
-  FPCfegetexceptflag(&new_flags);
-  ASSERT_EQ(initial_flags, new_flags);
-}
-
 /// @brief Set/Get denormals flush to zero
-TEST(FPControl, DenormalsFTZ) {
+TEST(Denormals, DenormalsFTZ) {
   Number32b denormal(1);
   EXPECT_TRUE(FPCIsDenormal(denormal.f + denormal.f));
   EXPECT_NE(0.0f, denormal.f + denormal.f);
