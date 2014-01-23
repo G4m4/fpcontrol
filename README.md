@@ -1,18 +1,23 @@
 FPControl - Floating point control
 ==================================
 
-FPControl is a tiny piece of code for floating point environment control and especially denormals management.
+FPControl is a C single-header library for floating point environment control and especially denormals management.
 
-C99 standardizes the fenv.h header, with a few utilities related to floating point environment, but this file is not available with Microsoft VC++.
-
-This is a (very) short attempt to offer platform-independent for the following:
+It aims at providing platform-independent for the following, on both x87 and SSE:
 - floating-point exceptions control
 - rounding mode selection
-- denormals flush to zero (SSE only for both gcc and Clang, SSE + x87 with MSVC)
+- denormals flush to zero
 - Denormal detection
 
 The entire code consists of one header file which is self-sufficient.
-However this repository also contains a few tests reyling on [Google Test Framework](http://code.google.com/p/googletest/).
+However this repository also contains a few tests relying on [Google Test Framework](http://code.google.com/p/googletest/).
+
+Context
+-------
+
+C99 standardizes the fenv.h header, with a few utilities related to floating point environment, but this file is not available with Microsoft VC++.
+Moreover, it provides different functionality on Linux or Apple machines (the latter offering a simple way to do denormals Flush-to-Zero).
+Eventually, x87 and SSE units are differently handled on these 3 systems.
 
 Building the tests
 ------------------
