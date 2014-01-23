@@ -19,6 +19,7 @@
 /// along with FPControl.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <limits>
+#include <vector>
 
 #include "gtest/gtest.h"
 
@@ -63,4 +64,28 @@ TEST(Denormals, DenormalsFTZ) {
   FPCResetDenormals();
   EXPECT_TRUE(FPCIsDenormal(denormal.f + denormal.f));
   EXPECT_NE(0.0f, denormal.f + denormal.f);
+}
+
+/// @brief Set/Get all exceptions flags, one by one
+TEST(Exceptions, GetSetOneByOne) {
+  unsigned int exception_flags[] = {FPC_INEXACT,
+                                    FPC_UNDERFLOW,
+                                    FPC_OVERFLOW,
+                                    FPC_DIVBYZERO,
+                                    FPC_INVALID};
+
+  for (int current_flag_id(0);
+       current_flag_id < GetArraySize(exception_flags);
+       ++current_flag_id) {
+    // All pending exceptions have to be cleared, just in case
+    FPCClearExcept();
+
+    unsigned int excepts_before = FPCGetExcept();
+    const unsigned int kCurrentException(exception_flags[current_flag_id]);
+
+    FPCEnableExcept(kCurrentException);
+    EXPECT_EQ(excepts_before ^ kCurrentException, FPCGetExcept());
+    FPCDisableExcept(kCurrentException);
+    EXPECT_EQ(excepts_before, FPCGetExcept());
+  }
 }
