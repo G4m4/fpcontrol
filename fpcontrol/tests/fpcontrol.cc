@@ -24,6 +24,12 @@
 
 #include "fpcontrol/inc/fpcontrol.h"
 
+/// brief Helper for automated array size retrieval
+template <typename TypeArray, int N>
+inline int GetArraySize(TypeArray (&) [N]) {
+  return N;
+}
+
 /// @brief Helper for nasty float-to-int tricks without using pointers stuff
 union Number32b {
   Number32b(float number) : f(number) {}
