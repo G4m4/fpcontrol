@@ -39,6 +39,8 @@ extern "C" {
 #if(_SYSTEM_WIN)
   #include <float.h>
 #elif(_SYSTEM_LINUX)
+  // In order to use feenableexcept(), etc.
+  #define _GNU_SOURCE
   #include <fenv.h>
   // required for fpclassify()
   #include <math.h>
@@ -61,11 +63,6 @@ extern "C" {
 // Apple will rely on C99 standard fenv.h stuff + one specific macro,
 // Linux on C99 standard fenv.h stuff + SSE xmmintrin stuff,
 // where Windows will be using its own specific functions.
-
-// We mostly try to stick with C99 standard whenever possible
-// Note that, where most C99 functions allow a per-exception flag access,
-// MSVC does not for clearing/reading flags.
-// Hence this wrapper does not provide per-exception flag clearing/reading.
 
 /// @brief Floating points exception constants
 #if(_SYSTEM_WIN)
@@ -108,7 +105,7 @@ extern "C" {
 #endif  // _SYSTEM_ ?
 
 /// @brief Clear any pending exception
-int FPCfeclearexcept(void) {
+int FPCClearExcept(void) {
 #if(_SYSTEM_WIN)
   return _clearfp();
 #elif(_SYSTEM_LINUX)
@@ -116,27 +113,42 @@ int FPCfeclearexcept(void) {
 #endif  // _SYSTEM_ ?
 }
 
-/// @brief Retrieve all exception flags
+/// @brief Return the currently enabled exceptions
 ///
-/// @param[in,out]  flagp   Pointer to where the flags will be stored
-int FPCfegetexceptflag(FPCexcept_t* flagp) {
+/// Unspecified exception masks stays unchanged
+///
+/// @return Currently enabled exceptions
+unsigned int FPCGetExcept(void) {
 #if(_SYSTEM_WIN)
-  *flagp = _controlfp(0, 0) & _MCW_EM;
-  return 0;
+  return _controlfp(0, 0) & _MCW_EM;
 #elif(_SYSTEM_LINUX)
-  return fegetexceptflag(flagp, FE_ALL_EXCEPT);
+  return fegetexcept();
 #endif  // _SYSTEM_ ?
 }
 
-/// @brief Set specified exception flags
+/// @brief Enable the specified exceptions
 ///
-/// @param[in]  flagp   Pointer to where the flags to set will be read from
-/// @param[in]  excepts   Bitmask of the flags to be set
-int FPCfesetexceptflag(const FPCexcept_t* flagp, int excepts) {
+/// Unspecified exception masks stays unchanged
+///
+/// @param[in]  excepts   Bitwise OR of the exceptions to be enabled
+int FPCEnableExcept(int excepts) {
 #if(_SYSTEM_WIN)
-  return _controlfp(excepts, _MCW_EM);
+  return _controlfp(~excepts, _MCW_EM);
 #elif(_SYSTEM_LINUX)
-  return fesetexceptflag(flagp, excepts & FE_ALL_EXCEPT);
+  return feenableexcept(excepts);
+#endif  // _SYSTEM_ ?
+}
+
+/// @brief Disable the specified exceptions
+///
+/// Unspecified exception masks stays unchanged
+///
+/// @param[in]  excepts   Bitwise OR of the exceptions to be disabled
+int FPCDisableExcept(int excepts) {
+#if(_SYSTEM_WIN)
+  return _controlfp((FPCGetExcept() & _MCW_EM) ^ excepts, _MCW_EM);
+#elif(_SYSTEM_LINUX)
+  return fedisableexcept(excepts);
 #endif  // _SYSTEM_ ?
 }
 
