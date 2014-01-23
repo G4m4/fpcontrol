@@ -69,17 +69,17 @@ extern "C" {
 
 /// @brief Floating points exception constants
 #if(_SYSTEM_WIN)
-  #define FPC_DIVBYZERO _EM_ZERODIVIDE
   #define FPC_INEXACT _EM_INEXACT
-  #define FPC_INVALID _EM_INVALID
-  #define FPC_OVERFLOW  _EM_OVERFLOW
   #define FPC_UNDERFLOW _EM_UNDERFLOW
+  #define FPC_OVERFLOW  _EM_OVERFLOW
+  #define FPC_DIVBYZERO _EM_ZERODIVIDE
+  #define FPC_INVALID _EM_INVALID
 #elif(_SYSTEM_LINUX)
-  #define FPC_DIVBYZERO FE_DIVBYZERO
   #define FPC_INEXACT FE_INEXACT
-  #define FPC_INVALID FE_INVALID
-  #define FPC_OVERFLOW  FE_OVERFLOW
   #define FPC_UNDERFLOW FE_UNDERFLOW
+  #define FPC_OVERFLOW  FE_OVERFLOW
+  #define FPC_DIVBYZERO FE_DIVBYZERO
+  #define FPC_INVALID FE_INVALID
 #endif  // _SYSTEM_ ?
 
 /// @brief Shortcut for "all floating points exception"
