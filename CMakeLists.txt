@@ -60,6 +60,17 @@ else()
   message("System detected as Linux")
 endif()
 
+# Build configuration
+set(BUILD_IS_DEBUG
+    0)
+if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
+  set(BUILD_IS_DEBUG
+      1)
+  message("Build configuration set to Debug")
+else()
+  message("Build configuration set to Release")
+endif()
+
 # Functions
 
 # @brief For the specified target, append compiler flags to the existing ones
@@ -68,7 +79,7 @@ endif()
 # @param _FLAGS                 flags to set
 function(add_compiler_flags _TARGET_NAME _FLAGS)
   set_property(TARGET ${_TARGET_NAME}
-               APPEND PROPERTY COMPILE_FLAGS ${_FLAGS}
+               APPEND_STRING PROPERTY COMPILE_FLAGS ${_FLAGS}
                )
 endfunction(add_compiler_flags)
 
@@ -150,6 +161,11 @@ if(${COMPILER_IS_GCC} OR ${COMPILER_IS_CLANG})
   add_definitions("-msse")
   add_definitions("-mfpmath=sse")
 endif(${COMPILER_IS_GCC} OR ${COMPILER_IS_CLANG})
+# Project-wide various options
+if (${COMPILER_IS_MSVC})
+  # Multithreaded build
+  add_definitions("/MP")
+endif (${COMPILER_IS_MSVC})
 
 # Project-wide warning options
 if(${COMPILER_IS_GCC} OR ${COMPILER_IS_CLANG})
@@ -162,28 +178,53 @@ elseif(${COMPILER_IS_MSVC})
   add_definitions(-W4)
 endif(${COMPILER_IS_GCC} OR ${COMPILER_IS_CLANG})
 
+# Debug-only options
+if(${COMPILER_IS_GCC} OR ${COMPILER_IS_CLANG})
+  add_debug_flags("-ggdb")
+elseif(${COMPILER_IS_MSVC})
+endif(${COMPILER_IS_GCC} OR ${COMPILER_IS_CLANG})
+
+# Release-only options
+if(${COMPILER_IS_GCC} OR ${COMPILER_IS_CLANG})
+  add_release_flags("-Ofast")
+  # More informations about vectorization
+  add_release_flags("-ftree-vectorizer-verbose=10")
+elseif(${COMPILER_IS_MSVC})
+  add_release_linker_flags("/LTCG")
+  add_release_flags("/Ox")
+  add_release_flags("/Ob2")
+  add_release_flags("/Oi")
+  add_release_flags("/Ot")
+  add_release_flags("/GL")
+  add_release_flags("/fp:fast")
+endif(${COMPILER_IS_GCC} OR ${COMPILER_IS_CLANG})
+
 
 # Various includes
 
 
 # Google Test framework
-set(GTEST_DIR
-  $ENV{GTEST_ROOT}
-)
-set(GTEST_BUILD_DIR
-  ${CMAKE_CURRENT_BINARY_DIR}/gtest
-)
-set(GTEST_INCLUDE_DIRS
-  ${GTEST_DIR}/include
-)
-if(EXISTS ${GTEST_DIR})
-  # MSVC-specific issues
-  if(MSVC)
-    # Known GTest/MSVC 2011 issue: VS2012 doesn't support correctly the tuples yet
-    add_definitions(-D _VARIADIC_MAX=10)
-  endif(MSVC)
+# GTest path may be defined from an outside CMake file,
+# if this is used as an external library
+if(NOT EXISTS ${GTEST_DIR})
+  set(GTEST_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/externals/gtest
+  )
+  set(GTEST_BUILD_DIR
+    ${CMAKE_CURRENT_BINARY_DIR}/gtest
+  )
+  set(GTEST_INCLUDE_DIRS
+    ${GTEST_DIR}/include
+  )
+endif(NOT EXISTS ${GTEST_DIR})
+# MSVC-specific issues
+if(MSVC)
+  # Known GTest/MSVC 2011 issue: VS2012 doesn't support correctly the tuples yet
+  add_definitions(-D _VARIADIC_MAX=10)
+endif(MSVC)
 
-  add_subdirectory(${GTEST_DIR} ${GTEST_BUILD_DIR})
-endif(EXISTS ${GTEST_DIR})
+# Not displaying gtest warnings
+add_subdirectory(${GTEST_DIR} ${GTEST_BUILD_DIR})
+add_compiler_flags(gtest " -w")
 
 add_subdirectory(fpcontrol)
