@@ -14,6 +14,7 @@ include_directories(
 set(FPCONTROL_TESTS_SRC
     main.cc
     fpcontrol.cc
+    ${FPCONTROL_INCLUDE_DIR}/fpcontrol/inc/fpcontrol.h # So it does appear in generated files
 )
 
 # Target
