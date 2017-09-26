@@ -31,13 +31,11 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
     - os: osx
-addons:
-    apt:
-        packages:
-            - valgrind
-            - cmake
 before_install:
     - eval "${MATRIX_EVAL}"
+install:
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install valgrind; else brew install valgrind; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install cmake; else brew install cmake; fi
 before_script:
   - git submodule init
   - git submodule update
