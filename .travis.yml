@@ -49,4 +49,4 @@ script:
   - cmake ..
   - make clean
   - make
-  - valgrind --leak-check=full --track-origins=yes ./sandbox/tests/sandbox_tests
+  - valgrind --leak-check=full --track-origins=yes ./fpcontrol/tests/fpcontrol_tests
