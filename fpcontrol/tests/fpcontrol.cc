@@ -19,7 +19,6 @@
 /// along with FPControl.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <limits>
-#include <vector>
 
 #include "gtest/gtest.h"
 
