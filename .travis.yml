@@ -1,4 +1,4 @@
-language: c
+language: cpp
 
 matrix:
   include:
@@ -45,4 +45,4 @@ script:
   - cmake ..
   - make clean
   - make
-  - valgrind --leak-check=full --track-origins=yes ./fpcontrol/tests/fpcontrol_tests
+  - ./fpcontrol/tests/fpcontrol_tests
