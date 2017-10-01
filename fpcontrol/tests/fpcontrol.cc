@@ -58,12 +58,16 @@ TEST(Denormals, DenormalsFTZ) {
   EXPECT_TRUE(FPCIsDenormal(denormal.f + denormal.f));
   EXPECT_NE(0.0f, denormal.f + denormal.f);
   FPCSetDenormalsFTZ();
-
-  EXPECT_EQ(0.0f, denormal.f + denormal.f);
+  const float add_ftz = denormal.f + denormal.f;
+  EXPECT_EQ(0.0f, add_ftz);
+  EXPECT_FALSE(FPCIsDenormal(add_ftz));
 
   FPCResetDenormals();
-  EXPECT_TRUE(FPCIsDenormal(denormal.f + denormal.f));
-  EXPECT_NE(0.0f, denormal.f + denormal.f);
+  // No operation happened on this variable in between
+  EXPECT_FALSE(FPCIsDenormal(add_ftz));
+  const float add_noftz = denormal.f + denormal.f;
+  EXPECT_TRUE(FPCIsDenormal(add_noftz));
+  EXPECT_NE(0.0f, add_noftz);
 }
 
 /// @brief Set/Get all exceptions flags, one by one
