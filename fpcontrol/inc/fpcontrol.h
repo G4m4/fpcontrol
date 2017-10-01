@@ -40,7 +40,6 @@ extern "C" {
   #include <float.h>
 #elif(_SYSTEM_LINUX)
   // In order to use feenableexcept(), etc.
-  #define _GNU_SOURCE
   #include <fenv.h>
   // required for fpclassify()
   #include <math.h>
