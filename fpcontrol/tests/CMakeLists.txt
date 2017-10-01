@@ -24,6 +24,13 @@ add_executable(fpcontrol_tests
 
 set_target_mt(fpcontrol_tests)
 
+# Make sure the SSE unit gets used for fp maths
+if(COMPILER_IS_GCC OR COMPILER_IS_CLANG)
+  add_compiler_flags(fpcontrol_tests "-mfpmath=sse")
+else()
+  add_compiler_flags(fpcontrol_tests "/ARCH:SSE")
+endif()
+
 target_link_libraries(fpcontrol_tests
   gtest_main
 )
