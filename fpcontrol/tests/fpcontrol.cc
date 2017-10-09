@@ -55,7 +55,7 @@ TEST(Denormals, IsDenormal) {
 
 /// @brief Set/Get denormals flush to zero
 TEST(Denormals, DenormalsFTZ) {
-  FPCenv_t fp_env = 0;
+  FPCenv_t fp_env;
   FPCSaveEnv(&fp_env);
   Number32b denormal(1);
   EXPECT_TRUE(FPCIsDenormal(denormal.f + denormal.f));
