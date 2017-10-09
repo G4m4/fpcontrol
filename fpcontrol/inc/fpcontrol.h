@@ -293,8 +293,6 @@ void FPCSetDenormalsFTZ_SSE(void) {
 void FPCSetDenormalsDAZ_SSE(void) {
 #if _SSE_VERSION >= 3
   _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
-#else
-#error "Cannot use SSE denormals are zero with this configuration"
 #endif // _SSE_VERSION >= 3?
 }
 
