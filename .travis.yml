@@ -34,7 +34,6 @@ matrix:
 before_install:
     - eval "${MATRIX_EVAL}"
 install:
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install valgrind; else brew install valgrind; fi
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install cmake; fi
 before_script:
   - git submodule init
