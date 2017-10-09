@@ -284,6 +284,34 @@ bool FPCIsDenormal(const float value) {
 #endif  // _SYSTEM_ ?
 }
 
+/// Below are sse-specific routines, typically to be used on x64
+#if _SSE_VERSION >= 1
+void FPCSetDenormalsFTZ_SSE(void) {
+  _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+}
+
+void FPCSetDenormalsDAZ_SSE(void) {
+#if _SSE_VERSION >= 3
+  _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
+#else
+#error "Cannot use SSE denormals are zero with this configuration"
+#endif // _SSE_VERSION >= 3?
+}
+
+/// @brief Get rid of denormals
+///
+/// Make so the SSE control unit:
+/// - flush denormals to zero when having computed one (requires SSE1)
+/// - consider denormals operands as zeros (requires SSE3)
+/// Both will be set if the SSE configuration is suitable
+void FPCNoDenormals(void) {
+  FPCSetDenormalsFTZ_SSE();
+#if _SSE_VERSION >= 3
+  FPCSetDenormalsDAZ_SSE();
+#endif // _SSE_VERSION >= 3?
+}
+#endif // _SSE_VERSION >= 1?
+
 #if (_SYSTEM_WIN)
 #pragma warning(pop)
 #endif  // (_SYSTEM_WIN)

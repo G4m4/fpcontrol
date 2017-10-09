@@ -55,15 +55,17 @@ TEST(Denormals, IsDenormal) {
 
 /// @brief Set/Get denormals flush to zero
 TEST(Denormals, DenormalsFTZ) {
+  FPCenv_t fp_env = 0;
+  FPCSaveEnv(&fp_env);
   Number32b denormal(1);
   EXPECT_TRUE(FPCIsDenormal(denormal.f + denormal.f));
   EXPECT_NE(0.0f, denormal.f + denormal.f);
-  FPCSetDenormalsFTZ();
+  FPCSetDenormalsFTZ_SSE();
   const float add_ftz = denormal.f + denormal.f;
   EXPECT_EQ(0.0f, add_ftz);
   EXPECT_FALSE(FPCIsDenormal(add_ftz));
 
-  FPCResetDenormals();
+  FPCLoadEnv(&fp_env);
   // No operation happened on this variable in between
   EXPECT_FALSE(FPCIsDenormal(add_ftz));
   const float add_noftz = denormal.f + denormal.f;
