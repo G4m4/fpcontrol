@@ -43,6 +43,8 @@ union Number32b {
 /// e.g. those in ] 0.0f ; FLT_MIN [
 /// Also check it on the first non-denormal (FLT_MIN)
 TEST(Denormals, IsDenormal) {
+  const Number32b zero(0);
+  EXPECT_FALSE(FPCIsDenormal(zero.f));
   Number32b checked_num(1);
   while (checked_num.f < std::numeric_limits<float>::min()) {
     EXPECT_TRUE(FPCIsDenormal(checked_num.f));
