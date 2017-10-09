@@ -36,6 +36,63 @@ extern "C" {
   #error "System could not be detected"
 #endif
 
+#include <stdint.h>
+#if(INTPTR_MAX == INT64_MAX)
+#define _SYSTEM_32B 0
+#define _SYSTEM_64B 1
+#else
+#define _SYSTEM_32B 1
+#define _SYSTEM_64B 0
+#endif
+
+/// @brief Compiler detection
+#if(defined(__GNUC__))
+#define _COMPILER_GCC 1
+#elif(defined(__clang__))
+#define _COMPILER_CLANG 1
+#elif(defined(_MSC_VER))
+#define _COMPILER_MSVC 1
+#else
+#error "Compiler could not be detected"
+#endif
+
+/// @brief SSE configuration
+#if defined(SET_SSE_VERSION)
+#define _SSE_VERSION SET_SSE_VERSION
+#else
+  #if(_COMPILER_GCC) || (_COMPILER_CLANG)
+    #if defined(__SSE__)
+    #define _SSE_VERSION 1
+    #elif (defined(__SSE3__))
+    #defined _SSE_VERSION 3
+    #endif
+  #elif(_COMPILER_MSVC)
+    #if _M_IX86_FP >= 1
+    #define _SSE_VERSION 1
+    // Microsoft's cl does not define anything between SSE2 and AVX,
+    // sadly this is exactly what we would need, hence this weird definition
+    #elif defined __AVX__
+    #define _SSE_VERSION 3
+    #endif
+  #else
+    #define _SSE_VERSION 0
+  #endif
+#endif  // defined(SET_SSE_VERSION)?
+
+// If relying on x87 when targeting X64, something is unusual to say the least.
+// Most of fp environment tweaks might be wrong, especially regarding denormals
+#if (_SSE_VERSION < 1) && _SYSTEM_64B
+#error "X64 requires SSE, check your compiler settings (typically -mno-sse)"
+#endif
+
+// Standard(ish) SSE includes
+#if _SSE_VERSION >= 1
+#include <xmmintrin.h>
+#endif
+#if _SSE_VERSION >= 3
+#include <pmmintrin.h>
+#endif
+
 #if(_SYSTEM_WIN)
   #include <float.h>
 #elif(_SYSTEM_LINUX)
@@ -43,8 +100,6 @@ extern "C" {
   #include <fenv.h>
   // required for fpclassify()
   #include <math.h>
-  // required for SSE denormals management
-  #include <xmmintrin.h>
 #elif(_SYSTEM_APPLE)
   #include <fenv.h>
   #pragma STDC FENV_ACCESS ON
