@@ -26,7 +26,7 @@ set_target_mt(fpcontrol_tests)
 
 # Make sure the SSE unit gets used for fp maths - SSE3 allows DAZ so try using it
 if(COMPILER_IS_GCC OR COMPILER_IS_CLANG)
-  add_compiler_flags(fpcontrol_tests "-mfpmath=msse3")
+  add_compiler_flags(fpcontrol_tests "-mfpmath=sse")
 else()
   add_compiler_flags(fpcontrol_tests "/ARCH:SSE")
   # On Windows SSE3 will simply be a project flag as there is no way to force the compiler
