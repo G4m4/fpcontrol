@@ -236,62 +236,30 @@ int FPCfesetround(int round) {
 #endif  // _SYSTEM_ ?
 }
 
-/// @brief Type for previous floating points environnement
+/// @brief Type for floating point environnement
 #if(_SYSTEM_WIN)
   typedef unsigned int FPCenv_t;
-#elif(_SYSTEM_LINUX)
-  typedef unsigned int FPCenv_t;
-  /// @brief Bitmask for denormals FTZ (SSE control word)
-  const unsigned int kDenormalsFTZ = 0x8000;
-  /// @brief Bitmask for denormals DAZ (SSE control word)
-  const unsigned int kDenormalsDAZ = 0x0040;
-#elif(_SYSTEM_APPLE)
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   typedef fenv_t FPCenv_t;
 #endif  // _SYSTEM_ ?
 
-/// @brief Static variable holding the previous floating-point environment
-static FPCenv_t FPCprevious_env;
-
-/// @brief Flush all denormals to zero
-///
-/// On Windows this will be done for both x87 and SSE,
-/// SSE only for Apple and Linux
-///
-/// On Apple this can only be done by setting the whole FP environment
-/// to default! That's why this environment has to be saved first.
-///
-/// For the same reason, do all other changes AFTER calling this function.
-void FPCSetDenormalsFTZ(void) {
+/// @brief Save the entire floating-point environment
+/// If relevant (e.g. 32b) this means for both x87 and SSE
+void FPCSaveEnv(FPCenv_t* out) {
 #if(_SYSTEM_WIN)
-  // Save previous environment
-  FPCprevious_env = _controlfp(0, 0);
-  // Activate FTZ
-  _controlfp_s(0, _DN_FLUSH, _MCW_DN);
-#elif(_SYSTEM_LINUX)
-  // Save previous value
-  FPCprevious_env = _mm_getcsr();
-  // Activate FTZ
-  _mm_setcsr(_mm_getcsr() | (kDenormalsFTZ | kDenormalsDAZ));
-#elif(_SYSTEM_APPLE)
-  // Save previous environment
-  fgetenv(&FPCprevious_env);
-  // Set FP environment to default and activate FTZ
-  fesetenv(FE_DFL_DISABLE_SSE_DENORMS_ENV);
+  *out = _controlfp(0, 0);
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
+  fegetenv(out);
 #endif  // _SYSTEM_ ?
 }
 
-/// @brief Set back configuration regarding denormals to its previous state
-///
-/// On gcc/Clang this rely on the previously saved environment.
-/// Note also that on these compiler the whole environment (not only denormals)
-/// will be reset.
-void FPCResetDenormals(void) {
+/// @brief Load the entire floating-point environment
+/// If relevant (e.g. 32b) this means for both x87 and SSE
+void FPCLoadEnv(const FPCenv_t* in) {
 #if(_SYSTEM_WIN)
-  _controlfp(FPCprevious_env, _MCW_DN);
-#elif(_SYSTEM_LINUX)
-  _mm_setcsr(FPCprevious_env);
-#elif(_SYSTEM_APPLE)
-  fesetenv(FPCprevious_env);
+  _controlfp(*in, _MCW_EM | _MCW_RC | _MCW_DN);
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
+  fesetenv(in);
 #endif  // _SYSTEM_ ?
 }
 
