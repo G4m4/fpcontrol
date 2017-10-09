@@ -102,10 +102,17 @@ extern "C" {
   #include <math.h>
 #elif(_SYSTEM_APPLE)
   #include <fenv.h>
-  #pragma STDC FENV_ACCESS ON
   // required for fpclassify()
   #include <math.h>
 #endif  // _SYSTEM_ ?
+
+// Notice we don't notify the compiler about messing with floating point settings with the following
+// #pragma STDC FENV_ACCESS ON
+// The reasons are:
+// - We expect the main usage of this header would be getting rid of denormals
+// - We do not want to wreak havok in users performance by enabling this
+// - This is not widely supported among compilers
+// In case the user does use say a custom precision mode, it might be required though
 
 #if (_SYSTEM_WIN)
 // Disable warning "This function or variable may be unsafe. Consider using..."
@@ -114,8 +121,7 @@ extern "C" {
 #endif  // (_SYSTEM_WIN)
 
 // Wrap system-specific definitions into common one.
-// Apple will rely on C99 standard fenv.h stuff + one specific macro,
-// Linux on C99 standard fenv.h stuff + SSE xmmintrin stuff,
+// Apple and Linux will usually rely on C99 standard fenv.h stuff,
 // where Windows will be using its own specific functions.
 
 /// @brief Floating points exception constants
