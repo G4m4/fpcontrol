@@ -182,7 +182,9 @@ unsigned int FPCGetExcept(void) {
 #if(_SYSTEM_WIN)
   return _controlfp(0, 0) & _MCW_EM;
 #elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
-  return fegetexcept();
+  FPCexcept_t out;
+  fegetexceptflag(&out, FE_ALL_EXCEPT);
+  return out;
 #endif  // _SYSTEM_ ?
 }
 
@@ -195,7 +197,8 @@ int FPCEnableExcept(int excepts) {
 #if(_SYSTEM_WIN)
   return _controlfp(~excepts, _MCW_EM);
 #elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
-  return feenableexcept(excepts);
+  const FPCexcept_t tmp = excepts;
+  return fesetexceptflag(&tmp, FE_ALL_EXCEPT);
 #endif  // _SYSTEM_ ?
 }
 
@@ -208,7 +211,9 @@ int FPCDisableExcept(int excepts) {
 #if(_SYSTEM_WIN)
   return _controlfp((FPCGetExcept() & _MCW_EM) ^ excepts, _MCW_EM);
 #elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
-  return fedisableexcept(excepts);
+  const FPCexcept_t current = FPCGetExcept();
+  const FPCexcept_t not_excepts = current & ~excepts;
+  return fesetexceptflag(&not_excepts, FE_ALL_EXCEPT);
 #endif  // _SYSTEM_ ?
 }
 
