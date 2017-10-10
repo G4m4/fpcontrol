@@ -284,7 +284,7 @@ bool FPCIsDenormal(const float value) {
   value_.f = value;
   // 0x00800000: integer representation of the smallest normalized float
   return value_.i > 0 && value_.i < 0x00800000;
-#elif(_SYSTEM_LINUX)
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   return FP_SUBNORMAL == fpclassify(value);
 #endif  // _SYSTEM_ ?
 }
