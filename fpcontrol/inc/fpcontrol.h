@@ -131,7 +131,7 @@ extern "C" {
   #define FPC_OVERFLOW  _EM_OVERFLOW
   #define FPC_DIVBYZERO _EM_ZERODIVIDE
   #define FPC_INVALID _EM_INVALID
-#elif(_SYSTEM_LINUX)
+#elif(_SYSTEM_LINUX) | (_SYSTEM_APPLE)
   #define FPC_INEXACT FE_INEXACT
   #define FPC_UNDERFLOW FE_UNDERFLOW
   #define FPC_OVERFLOW  FE_OVERFLOW
@@ -150,7 +150,7 @@ extern "C" {
   #define FPC_TONEAREST _RC_NEAR
   #define FPC_TOWARDZERO _RC_CHOP
   #define FPC_UPWARD  _RC_UP
-#elif(_SYSTEM_LINUX)
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   #define FPC_DOWNWARD FE_DOWNWARD
   #define FPC_TONEAREST FE_TONEAREST
   #define FPC_TOWARDZERO FE_TOWARDZERO
@@ -160,7 +160,7 @@ extern "C" {
 /// @brief Type for floating points exception flags
 #if(_SYSTEM_WIN)
   typedef unsigned int FPCexcept_t;
-#elif(_SYSTEM_LINUX)
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   typedef fexcept_t FPCexcept_t;
 #endif  // _SYSTEM_ ?
 
@@ -168,7 +168,7 @@ extern "C" {
 int FPCClearExcept(void) {
 #if(_SYSTEM_WIN)
   return _clearfp();
-#elif(_SYSTEM_LINUX)
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   return feclearexcept(FPC_ALL_EXCEPT);
 #endif  // _SYSTEM_ ?
 }
@@ -181,7 +181,7 @@ int FPCClearExcept(void) {
 unsigned int FPCGetExcept(void) {
 #if(_SYSTEM_WIN)
   return _controlfp(0, 0) & _MCW_EM;
-#elif(_SYSTEM_LINUX)
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   return fegetexcept();
 #endif  // _SYSTEM_ ?
 }
@@ -194,7 +194,7 @@ unsigned int FPCGetExcept(void) {
 int FPCEnableExcept(int excepts) {
 #if(_SYSTEM_WIN)
   return _controlfp(~excepts, _MCW_EM);
-#elif(_SYSTEM_LINUX)
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   return feenableexcept(excepts);
 #endif  // _SYSTEM_ ?
 }
@@ -207,7 +207,7 @@ int FPCEnableExcept(int excepts) {
 int FPCDisableExcept(int excepts) {
 #if(_SYSTEM_WIN)
   return _controlfp((FPCGetExcept() & _MCW_EM) ^ excepts, _MCW_EM);
-#elif(_SYSTEM_LINUX)
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   return fedisableexcept(excepts);
 #endif  // _SYSTEM_ ?
 }
@@ -219,7 +219,7 @@ int FPCDisableExcept(int excepts) {
 int FPCfegetround(void) {
 #if(_SYSTEM_WIN)
   return _controlfp(0, 0) & _MCW_RC;
-#elif(_SYSTEM_LINUX)
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   return fegetround();
 #endif  // _SYSTEM_ ?
 }
@@ -231,7 +231,7 @@ int FPCfegetround(void) {
 int FPCfesetround(int round) {
 #if(_SYSTEM_WIN)
   return _controlfp(round, _MCW_RC);
-#elif(_SYSTEM_LINUX)
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   return fesetround(round);
 #endif  // _SYSTEM_ ?
 }
