@@ -165,7 +165,7 @@ extern "C" {
 #endif  // _SYSTEM_ ?
 
 /// @brief Clear any pending exception
-int FPCClearExcept(void) {
+FPCexcept_t FPCClearExcept(void) {
 #if(_SYSTEM_WIN)
   return _clearfp();
 #elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
