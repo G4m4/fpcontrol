@@ -178,7 +178,7 @@ int FPCClearExcept(void) {
 /// Unspecified exception masks stays unchanged
 ///
 /// @return Currently enabled exceptions
-unsigned int FPCGetExcept(void) {
+FPCexcept_t FPCGetExcept(void) {
 #if(_SYSTEM_WIN)
   return _controlfp(0, 0) & _MCW_EM;
 #elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
@@ -193,12 +193,11 @@ unsigned int FPCGetExcept(void) {
 /// Unspecified exception masks stays unchanged
 ///
 /// @param[in]  excepts   Bitwise OR of the exceptions to be enabled
-int FPCEnableExcept(int excepts) {
+FPCexcept_t FPCEnableExcept(FPCexcept_t excepts) {
 #if(_SYSTEM_WIN)
   return _controlfp(~excepts, _MCW_EM);
 #elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
-  const FPCexcept_t tmp = excepts;
-  return fesetexceptflag(&tmp, FE_ALL_EXCEPT);
+  return fesetexceptflag(&excepts, FE_ALL_EXCEPT);
 #endif  // _SYSTEM_ ?
 }
 
@@ -207,7 +206,7 @@ int FPCEnableExcept(int excepts) {
 /// Unspecified exception masks stays unchanged
 ///
 /// @param[in]  excepts   Bitwise OR of the exceptions to be disabled
-int FPCDisableExcept(int excepts) {
+FPCexcept_t FPCDisableExcept(FPCexcept_t excepts) {
 #if(_SYSTEM_WIN)
   return _controlfp((FPCGetExcept() & _MCW_EM) ^ excepts, _MCW_EM);
 #elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
