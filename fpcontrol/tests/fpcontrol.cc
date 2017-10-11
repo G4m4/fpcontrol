@@ -87,7 +87,7 @@ TEST(Exceptions, GetSetOneByOne) {
     // All pending exceptions have to be cleared, just in case
     FPCClearExcept();
 
-    unsigned int excepts_before = FPCGetExcept();
+    const unsigned int excepts_before = FPCGetExcept();
     const unsigned int kCurrentException(exception_flags[current_flag_id]);
 
     FPCEnableExcept(kCurrentException);
