@@ -269,6 +269,8 @@ void FPCLoadEnv(const FPCenv_t* in) {
 
 /// @brief Function testing whether or no a value is a denormal
 /// Single-precision floating point values only.
+/// Beware, it tests for what range the value is in,
+/// regardless of the FPU configuration
 ///
 /// @param[in]  value   Value to test
 ///

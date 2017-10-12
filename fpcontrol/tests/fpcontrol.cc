@@ -73,6 +73,29 @@ TEST(Denormals, DenormalsFTZ) {
   EXPECT_NE(0.0f, add_noftz);
 }
 
+#if _SSE_VERSION >= 3
+/// @brief Set/Get denormals are zero
+TEST(Denormals, DAZ) {
+  FPCenv_t fp_env;
+  FPCSaveEnv(&fp_env);
+  Number32b denormal(1);
+  EXPECT_TRUE(FPCIsDenormal(denormal.f + denormal.f));
+  EXPECT_NE(0.0f, denormal.f + denormal.f);
+  FPCSetDenormalsDAZ_SSE();
+  EXPECT_EQ(0.0f, denormal.f);
+  // So the idea here is as follows:
+  // the value is indeed denormal, but considered as zero when used as operand
+  // As a result, it yields zeros when added to itself
+  EXPECT_TRUE(FPCIsDenormal(denormal.f));
+  EXPECT_EQ(0.0f, denormal.f + denormal.f);
+
+  FPCLoadEnv(&fp_env);
+  EXPECT_NE(0.0f, denormal.f);
+  EXPECT_NE(0.0f, denormal.f + denormal.f);
+  EXPECT_TRUE(FPCIsDenormal(denormal.f));
+}
+#endif  // _SSE_VERSION >= 3 ?
+
 /// @brief Set/Get all exceptions flags, one by one
 TEST(Exceptions, GetSetOneByOne) {
   unsigned int exception_flags[] = {FPC_INEXACT,
