@@ -98,7 +98,7 @@ extern "C" {
   #endif
 #else  // _SYSTEM?
   #include <x86intrin.h>
-#else  // _SYSTEM?
+#endif  // _SYSTEM?
 
 #if(_SYSTEM_WIN)
   #include <float.h>
