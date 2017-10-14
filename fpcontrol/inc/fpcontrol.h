@@ -85,6 +85,7 @@ extern "C" {
   #endif  // SET_SSE_VERSION < _SSE_VERSION?
 #endif  // _COMPILER?
 // From now on always use _SSE_VERSION
+#undef _SSE_VERSION
 #define _SSE_VERSION SET_SSE_VERSION
 #endif  // defined(SET_SSE_VERSION)?
 
