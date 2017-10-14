@@ -57,27 +57,35 @@ extern "C" {
 #error "Compiler could not be detected"
 #endif
 
-/// @brief SSE configuration
-#if defined(SET_SSE_VERSION)
-#define _SSE_VERSION SET_SSE_VERSION
-#else
-  #if(_COMPILER_GCC) || (_COMPILER_CLANG)
-    #if defined(__SSE__)
-    #define _SSE_VERSION 1
-    #elif (defined(__SSE3__))
-    #defined _SSE_VERSION 3
-    #endif
-  #elif(_COMPILER_MSVC)
-    #if _M_IX86_FP >= 1
-    #define _SSE_VERSION 1
-    // Microsoft's cl does not define anything between SSE2 and AVX,
-    // sadly this is exactly what we would need, hence this weird definition
-    #elif defined __AVX__
-    #define _SSE_VERSION 3
-    #endif
-  #else
-    #define _SSE_VERSION 0
+/// @brief SSE detection
+#if(_COMPILER_GCC) || (_COMPILER_CLANG)
+  #if defined(__SSE__)
+  #define _SSE_VERSION 1
+  #elif (defined(__SSE3__))
+  #defined _SSE_VERSION 3
   #endif
+#elif(_COMPILER_MSVC)
+  #if _M_IX86_FP >= 1
+  #define _SSE_VERSION 1
+  // Microsoft's cl does not define anything between SSE2 and AVX,
+  // sadly this is exactly what we would need, hence this weird definition
+  #elif defined __AVX__
+  #define _SSE_VERSION 3
+  #endif
+#else
+  #define _SSE_VERSION 0
+#endif  // _COMPILER?
+
+/// @brief SSE detection
+// On gcc and Clang SSE is opt-in, so notify the user about any mismatch
+#if defined(SET_SSE_VERSION)
+#if(_COMPILER_GCC) || (_COMPILER_CLANG)
+  #if SET_SSE_VERSION < _SSE_VERSION
+    #error "SSE set version and the one used for compilation do not match, make sure you build with -msse or -msse3 arguments"
+  #endif  // SET_SSE_VERSION < _SSE_VERSION?
+#endif  // _COMPILER?
+// From now on always use _SSE_VERSION
+#define _SSE_VERSION SET_SSE_VERSION
 #endif  // defined(SET_SSE_VERSION)?
 
 // If relying on x87 when targeting X64, something is unusual to say the least.
