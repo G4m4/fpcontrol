@@ -87,12 +87,18 @@ extern "C" {
 #endif
 
 // Standard(ish) SSE includes
-#if _SSE_VERSION >= 1
-#include <xmmintrin.h>
-#endif
-#if _SSE_VERSION >= 3
-#include <pmmintrin.h>
-#endif
+// On Windows explicitly include the right header,
+// otherwise let the more or less standard header do it
+#if _SYSTEM_WIN
+  #if _SSE_VERSION >= 1
+  #include <xmmintrin.h>
+  #endif
+  #if _SSE_VERSION >= 3
+  #include <pmmintrin.h>
+  #endif
+#else  // _SYSTEM?
+  #include <x86intrin.h>
+#else  // _SYSTEM?
 
 #if(_SYSTEM_WIN)
   #include <float.h>
