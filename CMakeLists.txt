@@ -225,6 +225,10 @@ endif(MSVC)
 
 # Not displaying gtest warnings
 add_subdirectory(${GTEST_DIR} ${GTEST_BUILD_DIR})
-add_compiler_flags(gtest " -w")
+add_compiler_flags(gtest "-w")
+if(COMPILER_IS_GCC OR COMPILER_IS_CLANG)
+  # gtest relies on c++11
+  add_compiler_flags(gtest "-std=c++11")
+endif(COMPILER_IS_GCC OR COMPILER_IS_CLANG)
 
 add_subdirectory(fpcontrol)
