@@ -189,8 +189,6 @@ endif(COMPILER_IS_GCC OR COMPILER_IS_CLANG)
 # Release-only options
 if(COMPILER_IS_GCC OR COMPILER_IS_CLANG)
   add_release_flags("-Ofast")
-  # More informations about vectorization
-  add_release_flags("-ftree-vectorizer-verbose=10")
 elseif(COMPILER_IS_MSVC)
   add_release_linker_flags("/LTCG")
   add_release_flags("/Ox")
