@@ -19,6 +19,8 @@ C99 standardizes the fenv.h header, with a few utilities related to floating poi
 Moreover, it provides different functionality on Linux or Apple machines (the latter offering a simple way to do denormals Flush-to-Zero).
 Eventually, x87 and SSE units are differently handled on these 3 systems.
 
+This library wraps them all into common functions and typedefs, working on all 3 platforms in both 32 and 64 bits.
+
 Building the tests
 ------------------
 
@@ -34,6 +36,6 @@ On Linux, this can be done as follows:
 
 License
 ==================================
-FPControl is under GPLv3.
+FPControl is under a very permissive license.
 
 See the COPYING file for the full license text.
