@@ -182,7 +182,7 @@ endif(COMPILER_IS_GCC OR COMPILER_IS_CLANG)
 
 # Debug-only options
 if(COMPILER_IS_GCC OR COMPILER_IS_CLANG)
-  add_debug_flags("-ggdb")
+  add_definitions("-ggdb")
 elseif(COMPILER_IS_MSVC)
 endif(COMPILER_IS_GCC OR COMPILER_IS_CLANG)
 
