@@ -40,6 +40,15 @@ union Number32b {
   float f;
 };
 
+/// @brief Get a random denormal
+float GetDenormal() {
+  // math.h pulled by fpcontrol.h already
+  static const Number32b base(rand());
+  // Integer representation for the biggest normalised float
+  const Number32b mod(base.i % 0x00800000);
+  return mod.f;
+}
+
 /// @brief Check the IsDenormal function on all denormals:
 /// e.g. those in ] 0.0f ; FLT_MIN [
 /// Also check it on the first non-denormal (FLT_MIN)
@@ -58,9 +67,9 @@ TEST(Denormals, IsDenormal) {
 TEST(Denormals, DenormalsFTZ) {
   FPCenv_t fp_env;
   FPCSaveEnv(&fp_env);
-  Number32b denormal(1);
-  EXPECT_TRUE(FPCIsDenormal(denormal.f + denormal.f));
-  EXPECT_NE(0.0f, denormal.f + denormal.f);
+  Number32b denormal(GetDenormal());
+  EXPECT_TRUE(FPCIsDenormal(denormal.f));
+  EXPECT_NE(0.0f, denormal.f);
   FPCSetDenormalsFTZ_SSE();
   const float add_ftz = denormal.f + denormal.f;
   EXPECT_EQ(0.0f, add_ftz);
@@ -69,7 +78,7 @@ TEST(Denormals, DenormalsFTZ) {
   FPCLoadEnv(&fp_env);
   // No operation happened on this variable in between
   EXPECT_FALSE(FPCIsDenormal(add_ftz));
-  const float add_noftz = denormal.f + denormal.f;
+  const float add_noftz = denormal.f + denormal.f + denormal.f;
   EXPECT_TRUE(FPCIsDenormal(add_noftz));
   EXPECT_NE(0.0f, add_noftz);
 }
@@ -79,9 +88,9 @@ TEST(Denormals, DenormalsFTZ) {
 TEST(Denormals, DAZ) {
   FPCenv_t fp_env;
   FPCSaveEnv(&fp_env);
-  Number32b denormal(1);
-  EXPECT_TRUE(FPCIsDenormal(denormal.f + denormal.f));
-  EXPECT_NE(0.0f, denormal.f + denormal.f);
+  Number32b denormal(GetDenormal());
+  EXPECT_TRUE(FPCIsDenormal(denormal.f));
+  EXPECT_NE(0.0f, denormal.f);
   FPCSetDenormalsDAZ_SSE();
   EXPECT_EQ(0.0f, denormal.f);
   // So the idea here is as follows:
@@ -92,7 +101,7 @@ TEST(Denormals, DAZ) {
 
   FPCLoadEnv(&fp_env);
   EXPECT_NE(0.0f, denormal.f);
-  EXPECT_NE(0.0f, denormal.f + denormal.f);
+  EXPECT_NE(0.0f, denormal.f + denormal.f + denormal.f);
   EXPECT_TRUE(FPCIsDenormal(denormal.f));
 }
 #endif  // _SSE_VERSION >= 3 ?
