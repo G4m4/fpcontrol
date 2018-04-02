@@ -292,8 +292,8 @@ void FPCLoadEnv(const FPCenv_t* in) {
 ///
 /// @return true if the value is a denormal
 bool FPCIsDenormal(const float value) {
-#if(_SYSTEM_WIN)
-  // _fpclass() takes a double so we have to do this by hand
+  // On Windows _fpclass() takes a double so we have to do this by hand
+  // On other systems the C version of fpclassify is not handling single floats
   union Number32b {
     int i;
     float f;
@@ -301,9 +301,6 @@ bool FPCIsDenormal(const float value) {
   value_.f = value;
   // 0x00800000: integer representation of the smallest normalized float
   return value_.i > 0 && value_.i < 0x00800000;
-#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
-  return FP_SUBNORMAL == fpclassify(value);
-#endif  // _SYSTEM_ ?
 }
 
 /// Below are sse-specific routines, typically to be used on x64
