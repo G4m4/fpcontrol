@@ -25,11 +25,11 @@ matrix:
       addons:
         apt:
           sources:
-            - llvm-toolchain-trusty-5.0
+            - llvm-toolchain-bionic-9.0
           packages:
-            - clang-5.0
+            - clang-9.0
       env:
-        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+        - MATRIX_EVAL="CC=clang-9.0 && CXX=clang++-9.0"
     - os: osx
 before_install:
     - eval "${MATRIX_EVAL}"
