@@ -1,6 +1,8 @@
 FPControl - Floating point control
 ==================================
 
+[![Build Status](https://travis-ci.org/G4m4/fpcontrol.svg?branch=master)](https://travis-ci.org/G4m4/fpcontrol)
+
 FPControl is a C single-header library for floating point environment control and especially denormals management.
 
 It aims at providing platform-independent for the following, on both x87 and SSE:
