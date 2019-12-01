@@ -108,6 +108,8 @@ TEST(Denormals, DAZ) {
 
 /// @brief Set/Get all exceptions flags, one by one
 TEST(Exceptions, GetSetOneByOne) {
+  // All pending exceptions have to be cleared, just in case
+  FPCClearExcept();
   unsigned int exception_flags[] = {FPC_INEXACT,
                                     FPC_UNDERFLOW,
                                     FPC_OVERFLOW,
@@ -117,17 +119,15 @@ TEST(Exceptions, GetSetOneByOne) {
   for (int current_flag_id(0);
        current_flag_id < GetArraySize(exception_flags);
        ++current_flag_id) {
-    // All pending exceptions have to be cleared, just in case
-    FPCClearExcept();
-
     const unsigned int excepts_before = FPCGetExcept();
     const unsigned int kCurrentException(exception_flags[current_flag_id]);
 
     FPCEnableExcept(kCurrentException);
 
+    std::cerr << FPC_ALL_EXCEPT << std::endl;
     std::cerr << current_flag_id << " excepts_before " << excepts_before << " kCurrentException " << kCurrentException << " FPCGetExcept() " << FPCGetExcept() << std::endl;
 
-    EXPECT_EQ(excepts_before ^ kCurrentException, FPCGetExcept());
+    EXPECT_EQ(kCurrentException, FPCGetExcept());
     FPCDisableExcept(kCurrentException);
     EXPECT_EQ(excepts_before, FPCGetExcept());
   }

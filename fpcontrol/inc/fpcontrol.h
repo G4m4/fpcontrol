@@ -183,7 +183,7 @@ extern "C" {
 /// @brief Clear any pending exception
 FPCexcept_t FPCClearExcept(void) {
 #if(_SYSTEM_WIN)
-  return _clearfp();
+  return _controlfp(0, FPC_ALL_EXCEPT);
 #elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   return feclearexcept(FPC_ALL_EXCEPT);
 #endif  // _SYSTEM_ ?
@@ -195,13 +195,13 @@ FPCexcept_t FPCClearExcept(void) {
 ///
 /// @return Currently enabled exceptions
 FPCexcept_t FPCGetExcept(void) {
+  FPCexcept_t out = FPC_ALL_EXCEPT;
 #if(_SYSTEM_WIN)
-  return _controlfp(0, 0) & _MCW_EM;
+  out &= _controlfp(0, 0);
 #elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
-  FPCexcept_t out;
   fegetexceptflag(&out, FE_ALL_EXCEPT);
-  return out;
 #endif  // _SYSTEM_ ?
+  return out;
 }
 
 /// @brief Enable the specified exceptions
@@ -210,10 +210,11 @@ FPCexcept_t FPCGetExcept(void) {
 ///
 /// @param[in]  excepts   Bitwise OR of the exceptions to be enabled
 FPCexcept_t FPCEnableExcept(FPCexcept_t excepts) {
+  const FPCexcept_t value = FPC_ALL_EXCEPT & excepts;
 #if(_SYSTEM_WIN)
-  return _controlfp(~excepts, _MCW_EM);
+  return _controlfp(value, FPC_ALL_EXCEPT);
 #elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
-  return fesetexceptflag(&excepts, FE_ALL_EXCEPT);
+  return fesetexceptflag(&value, FE_ALL_EXCEPT);
 #endif  // _SYSTEM_ ?
 }
 
@@ -223,11 +224,12 @@ FPCexcept_t FPCEnableExcept(FPCexcept_t excepts) {
 ///
 /// @param[in]  excepts   Bitwise OR of the exceptions to be disabled
 FPCexcept_t FPCDisableExcept(FPCexcept_t excepts) {
-#if(_SYSTEM_WIN)
-  return _controlfp((FPCGetExcept() & _MCW_EM) ^ excepts, _MCW_EM);
-#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   const FPCexcept_t current = FPCGetExcept();
-  const FPCexcept_t not_excepts = current & ~excepts;
+  const FPCexcept_t value = FPC_ALL_EXCEPT & excepts;
+  const FPCexcept_t not_excepts = current & ~value;
+#if(_SYSTEM_WIN)
+  return _controlfp(not_excepts, FPC_ALL_EXCEPT);
+#elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
   return fesetexceptflag(&not_excepts, FE_ALL_EXCEPT);
 #endif  // _SYSTEM_ ?
 }
