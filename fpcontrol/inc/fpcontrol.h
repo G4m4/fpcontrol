@@ -156,9 +156,9 @@ extern "C" {
 #endif  // _SYSTEM_ ?
 
 /// @brief Shortcut for "all floating points exception"
-#define FPC_ALL_EXCEPT FPC_DIVBYZERO | FPC_INEXACT | \
+#define FPC_ALL_EXCEPT ( FPC_DIVBYZERO | FPC_INEXACT | \
                        FPC_INVALID | FPC_OVERFLOW |  \
-                       FPC_UNDERFLOW
+                       FPC_UNDERFLOW )
 
 /// @brief Floating points rounding mode constants
 #if(_SYSTEM_WIN)
