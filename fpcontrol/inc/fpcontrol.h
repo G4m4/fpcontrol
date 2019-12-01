@@ -185,7 +185,8 @@ FPCexcept_t FPCClearExcept(void) {
 #if(_SYSTEM_WIN)
   return _controlfp(0, FPC_ALL_EXCEPT);
 #elif((_SYSTEM_LINUX) || (_SYSTEM_APPLE))
-  return feclearexcept(FPC_ALL_EXCEPT);
+  const FPCexcept_t value = 0;
+  return fesetexceptflag(&value, FE_ALL_EXCEPT);
 #endif  // _SYSTEM_ ?
 }
 
