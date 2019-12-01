@@ -124,9 +124,6 @@ TEST(Exceptions, GetSetOneByOne) {
 
     FPCEnableExcept(kCurrentException);
 
-    std::cerr << FPC_ALL_EXCEPT << std::endl;
-    std::cerr << current_flag_id << " excepts_before " << excepts_before << " kCurrentException " << kCurrentException << " FPCGetExcept() " << FPCGetExcept() << std::endl;
-
     EXPECT_EQ(kCurrentException, FPCGetExcept());
     FPCDisableExcept(kCurrentException);
     EXPECT_EQ(excepts_before, FPCGetExcept());
